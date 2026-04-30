@@ -1,36 +1,29 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Pelatih;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
 use App\Models\Jadwal;
-use App\Models\Absensi;
-use App\Models\Pembayaran;
 use App\Models\Materi;
+use App\Models\Absensi;
+use App\Models\User;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        $totalMurid    = User::where('role', 'murid')->count();
-        $totalPelatih  = User::where('role', 'pelatih')->count();
-        $totalJadwal   = Jadwal::count();
-        $totalMateri   = Materi::count();
-        $pendingBayar  = Pembayaran::where('status', 'pending')->count();
-        $totalAbsensi  = Absensi::count();
+        $pelatihId    = auth()->id();
+        $totalMateri  = Materi::where('pelatih_id', $pelatihId)->count();
+        $totalJadwal  = Jadwal::count();
+        $totalMurid   = User::where('role', 'murid')->count();
 
-        $recentPembayaran = Pembayaran::with('user')
-            ->orderBy('created_at', 'desc')
-            ->take(5)->get();
+        $recentMateri = Materi::where('pelatih_id', $pelatihId)
+            ->orderBy('created_at', 'desc')->take(5)->get();
 
-        $recentAbsensi = Absensi::with(['user', 'jadwal'])
-            ->orderBy('created_at', 'desc')
-            ->take(5)->get();
+        $jadwal = Jadwal::orderBy('hari')->get();
 
-        return view('admin.dashboard', compact(
-            'totalMurid', 'totalPelatih', 'totalJadwal', 'totalMateri',
-            'pendingBayar', 'totalAbsensi', 'recentPembayaran', 'recentAbsensi'
+        return view('pelatih.dashboard', compact(
+            'totalMateri', 'totalJadwal', 'totalMurid', 'recentMateri', 'jadwal'
         ));
     }
 }

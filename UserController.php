@@ -15,7 +15,7 @@ class UserController extends Controller
         $role  = $request->get('role', 'murid');
         $search = $request->get('search');
 
-        $users = User::where('role', $role)
+        $users = User::with('jadwals')->where('role', $role)
             ->when($search, fn($q) => $q->where('nama', 'like', "%$search%")
                 ->orWhere('email', 'like', "%$search%"))
             ->orderBy('nama')
